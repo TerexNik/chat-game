@@ -1,0 +1,45 @@
+package org.nterekhin.gameP2P.server;
+
+import org.nterekhin.gameP2P.eventBus.EventBus;
+
+import java.io.IOException;
+
+public final class ServerManager {
+    private static final ServerManager instance = new ServerManager();
+    private Thread serverThread;
+    private ChatServer chatServer;
+
+    public void startServer(int port) {
+        if (chatServer != null && isServerRunning()) {
+            return;
+        }
+        try {
+            chatServer = new ChatServer(port);
+            serverThread = new Thread(chatServer);
+            serverThread.start();
+            EventBus.getInstance().setUpEventBusForServer();
+            System.out.println("Chat server running on port " + port);
+        } catch (IOException e) {
+            e.printStackTrace();
+            shutdownServer();
+        }
+    }
+
+    public void shutdownServer() {
+        if (chatServer != null) {
+            serverThread.interrupt();
+            chatServer.shutdown();
+        }
+        chatServer = null;
+        EventBus.getInstance().clearUpEventBusFromServerListeners();
+        System.out.println("Chat server shut down");
+    }
+
+    public boolean isServerRunning() {
+        return serverThread != null && serverThread.isAlive();
+    }
+
+    public static ServerManager getInstance() {
+        return instance;
+    }
+}
