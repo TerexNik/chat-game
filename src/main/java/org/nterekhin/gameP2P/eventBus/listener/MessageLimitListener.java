@@ -16,8 +16,6 @@ public class MessageLimitListener implements EventListener<MessagesLimitEvent> {
         PlayerManager.getInstance().broadcastServerMessage(
                 "Message limit reached, server is shutting down"
         );
-        PlayerManager.getInstance().clearPlayerHandlers();
-        PlayerUIManager.getInstance().clearClients();
-        ServerManager.getInstance().shutdownServer();
+        ServerManager.getInstance().shutdownApplication();
     }
 }

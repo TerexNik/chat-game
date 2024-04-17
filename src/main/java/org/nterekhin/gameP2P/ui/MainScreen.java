@@ -1,18 +1,12 @@
 package org.nterekhin.gameP2P.ui;
 
-import org.nterekhin.gameP2P.client.PlayerUIManager;
 import org.nterekhin.gameP2P.server.ServerManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 public class MainScreen extends JFrame {
-
-    private final ServerManager serverManager;
-
-    public MainScreen(ServerManager serverManager) {
-        this.serverManager = serverManager;
+    public MainScreen() {
         setTitle("360T Assignment");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(600, 400);
@@ -27,7 +21,7 @@ public class MainScreen extends JFrame {
         setUpClientSideButtons(centerPanel, gbc);
 
         JButton exitApplication = new JButton("exit");
-        exitApplication.addActionListener(e -> shutdownApplication());
+        exitApplication.addActionListener(e -> ServerManager.getInstance().shutdownApplication());
         gbc.gridx = 1;
         gbc.gridy = 3;
         centerPanel.add(exitApplication, gbc);
@@ -47,22 +41,18 @@ public class MainScreen extends JFrame {
         portField.setText("4440");
         centerPanel.add(portField, gbc);
 
-        JButton createNewServer = new JButton("Create new Server");
-        createNewServer.addActionListener(e -> {
-            if (ServerManager.getInstance().isServerRunning()) {
-                JOptionPane.showMessageDialog(MainScreen.this, "Server is already started");
-                return;
-            }
-            int port = getPort(portField.getText());
-            serverManager.startServer(port);
-            JOptionPane.showMessageDialog(MainScreen.this, "Server started on port " + port);
-        });
+        JButton createNewServer = new JButton("Create new server");
+        createNewServer.addActionListener(e ->
+                UIActions.createNewServer(
+                        MainScreen.this,
+                        getPort(portField.getText()))
+        );
         gbc.gridx = 2;
         centerPanel.add(createNewServer, gbc);
 
 
         JButton stopServer = new JButton("Stop Server");
-        stopServer.addActionListener(e -> serverManager.shutdownServer());
+        stopServer.addActionListener(e -> ServerManager.getInstance().shutdownServer());
         gbc.gridx = 3;
         centerPanel.add(stopServer, gbc);
     }
@@ -82,15 +72,10 @@ public class MainScreen extends JFrame {
 
 
         JButton createNewClient = new JButton("Create new Client");
-        createNewClient.addActionListener(event -> {
-            try {
-                int port = getPort(portField.getText());
-                PlayerUIManager.getInstance().startClient(port);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(MainScreen.this,
-                        "Something went wrong, check that server is running on port: " + portField.getText());
-            }
-        });
+        createNewClient.addActionListener(event ->
+                UIActions.createNewClient(
+                        MainScreen.this,
+                        getPort(portField.getText())));
         gbc.gridx = 2;
         centerPanel.add(createNewClient, gbc);
     }
@@ -103,11 +88,5 @@ public class MainScreen extends JFrame {
             return 4440;
         }
 
-    }
-
-    private void shutdownApplication() {
-        serverManager.shutdownServer();
-        this.dispose();
-        System.exit(0);
     }
 }

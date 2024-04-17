@@ -1,5 +1,7 @@
 package org.nterekhin.gameP2P.server;
 
+import org.nterekhin.gameP2P.client.PlayerManager;
+import org.nterekhin.gameP2P.client.PlayerUIManager;
 import org.nterekhin.gameP2P.eventBus.EventBus;
 
 import java.io.IOException;
@@ -30,9 +32,21 @@ public final class ServerManager {
             serverThread.interrupt();
             chatServer.shutdown();
         }
+        EventBus.getInstance().clearUpEventBusFromServerListeners();
+        System.out.println("Chat server shut down");
+    }
+
+    public void shutdownApplication() {
+        if (chatServer != null) {
+            serverThread.interrupt();
+            chatServer.shutdown();
+        }
+        PlayerUIManager.getInstance().close();
+        PlayerManager.getInstance().close();
         chatServer = null;
         EventBus.getInstance().clearUpEventBusFromServerListeners();
         System.out.println("Chat server shut down");
+        System.exit(0);
     }
 
     public boolean isServerRunning() {

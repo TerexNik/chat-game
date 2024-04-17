@@ -14,8 +14,9 @@ public class PlayerDisconnectedListener implements EventListener<PlayerConnected
     public void onEvent(Event event) {
         PlayerDisconnectedEvent disconnectedEvent = (PlayerDisconnectedEvent) event;
         PlayerManager.getInstance().broadcastServerMessage(
-                disconnectedEvent.getNickname() + " disconnected from the chat"
+                String.format("\"%s\" disconnected from the chat", disconnectedEvent.getNickname())
         );
+        PlayerManager.getInstance().disconnectByNickname(disconnectedEvent.getNickname());
         System.out.printf("Client with nickname: %s is disconnected from %s%n",
                 disconnectedEvent.getNickname(),
                 disconnectedEvent.getRemoteAddress());

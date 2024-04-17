@@ -35,17 +35,20 @@ public class PlayerHandler extends Thread {
             String message;
             while (running && !socket.isClosed() && (message = in.readLine()) != null) {
                 if (message.equals("quit")) {
-                    shutdown();
+                    disconnect();
                 } else {
-                    PlayerManager.getInstance().broadcast(playerState.getNickname(), ": " + message);
+                    PlayerManager.getInstance().broadcast(
+                            playerState.getNickname(),
+                            ": " + message);
                     playerState.incrementMessageCounter();
                 }
             }
         } catch (SocketException e) {
-            shutdown();
+            // this catch helps keep logs clean from players that not chosen their nicknames yet
+            close();
         } catch (IOException e) {
             e.printStackTrace();
-            shutdown();
+            close();
         }
     }
 
@@ -62,7 +65,17 @@ public class PlayerHandler extends Thread {
         out.println(message);
     }
 
-    public void shutdown() {
+    /**
+     * Will close connection with server wide announcement
+     */
+    public void disconnect() {
+        EventBus.getInstance().postEvent(new PlayerDisconnectedEvent(
+                playerState.getNickname(),
+                socket.getRemoteSocketAddress().toString())
+        );
+    }
+
+    public void close() {
         try {
             running = false;
             if (!socket.isClosed()) {
@@ -70,10 +83,6 @@ public class PlayerHandler extends Thread {
             }
             in.close();
             out.close();
-            EventBus.getInstance().postEvent(new PlayerDisconnectedEvent(
-                    playerState.getNickname(),
-                    socket.getRemoteSocketAddress().toString()
-            ));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,6 +90,10 @@ public class PlayerHandler extends Thread {
 
     public PlayerState getPlayerState() {
         return playerState;
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 }
 

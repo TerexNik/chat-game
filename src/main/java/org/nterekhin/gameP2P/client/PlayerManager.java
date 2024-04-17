@@ -37,7 +37,7 @@ public final class PlayerManager {
     public void broadcast(String nickname, String message) {
         for (PlayerHandler playerHandler : playerHandlers) {
             PlayerState state = playerHandler.getPlayerState();
-            if (state.getNickname().equals(nickname) && !message.equals(" connected")) {
+            if (nickname != null && nickname.equals(state.getNickname())) {
                 playerHandler.sendMessage(String.format(MESSAGE_FORMAT,
                         message,
                         nickname,
@@ -48,14 +48,29 @@ public final class PlayerManager {
         }
     }
 
-    public void close() {
-        pool.shutdown();
-        clearPlayerHandlers();
+    public void disconnectByPort(int port) {
+        playerHandlers.stream().filter(handler -> port == handler.getSocket().getPort())
+                .findFirst().ifPresent(handler -> {
+                    if (handler.getPlayerState().getNickname() != null) {
+                        handler.disconnect();
+                    } else {
+                        handler.close();
+                    }
+                });
     }
 
-    public void clearPlayerHandlers() {
-        playerHandlers.forEach(PlayerHandler::shutdown);
-        playerHandlers.clear();
+    public void disconnectByNickname(String nickname) {
+        playerHandlers.stream().filter(handler ->
+                nickname != null && nickname.equals(handler.getPlayerState().getNickname())
+        ).findFirst().ifPresent(handler -> {
+            handler.close();
+            playerHandlers.remove(handler);
+        });
+    }
+
+    public void close() {
+        pool.shutdown();
+        playerHandlers.forEach(PlayerHandler::close);
     }
 
     public static PlayerManager getInstance() {

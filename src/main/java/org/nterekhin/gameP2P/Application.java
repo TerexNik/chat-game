@@ -11,11 +11,9 @@ import java.io.IOException;
 public class Application {
 
     public static void main(String[] args) {
-        ServerManager serverManager = new ServerManager();
-        MainScreen app = new MainScreen(serverManager);
-
+        MainScreen app = new MainScreen();
+        app.setLocationRelativeTo(null);
         handleConfiguration(ServerConfigProperties.getInstance(), app);
-
         SwingUtilities.invokeLater(() -> app.setVisible(true));
     }
 

@@ -13,7 +13,7 @@ public class PlayerConnectedListener implements EventListener<PlayerConnectedEve
     public void onEvent(Event event) {
         PlayerConnectedEvent connectedEvent = (PlayerConnectedEvent) event;
         PlayerManager.getInstance().broadcastServerMessage(
-                connectedEvent.getNickname() + " connected to chat"
+                String.format("\"%s\" connected to chat", connectedEvent.getNickname())
         );
         System.out.printf("Client with nickname: %s is connected to %s%n",
                 connectedEvent.getNickname(),

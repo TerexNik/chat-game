@@ -3,6 +3,8 @@ package org.nterekhin.gameP2P.client;
 import org.nterekhin.gameP2P.ui.PlayerUI;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +31,21 @@ public final class PlayerUIManager {
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
         PlayerUI playerUI = new PlayerUI(out);
+
+        // Setting position of the window close to previously opened window
+        if (!playerUIs.isEmpty()) {
+            playerUI.setLocation(400 * playerUIs.size(), 0);
+        }
+
+        // Setting closing operation for close socket and streams on window close
         playerUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        playerUI.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                PlayerManager.getInstance().disconnectByPort(socket.getLocalPort());
+                playerUIs.remove(playerUI);
+            }
+        });
         playerUI.setVisible(true);
 
         Thread listenerThread = buildClientThread(socket, playerUI);
@@ -54,12 +70,12 @@ public final class PlayerUIManager {
     public void close() {
         clientPool.shutdown();
         clientPool = null;
-        clearClients();
-    }
-
-    public void clearClients() {
         playerUIs.forEach(JFrame::dispose);
         playerUIs.clear();
+    }
+
+    public void closeByNickname(String nickname) {
+
     }
 
     public static PlayerUIManager getInstance() {
