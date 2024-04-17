@@ -84,6 +84,13 @@ public final class PlayerManager {
         return playerHandlers.size() > 1;
     }
 
+    public boolean verifyNickname(String nickname) {
+        return nickname != null && !nickname.isEmpty()
+                && playerHandlers.stream().map(PlayerHandler::getPlayerState)
+                .map(PlayerState::getNickname)
+                .noneMatch(nickname::equals);
+    }
+
     public void clear() {
         synchronized (playerHandlers) {
             playerHandlers.forEach(PlayerHandler::close);

@@ -72,8 +72,8 @@ public class PlayerHandler implements Runnable {
     private void init() throws IOException {
         out.println("Please choose nickname");
         String nickname = in.readLine();
-        while (nickname == null || nickname.isEmpty()) {
-            out.println("Empty nickname won't work, please try again");
+        while (!PlayerManager.getInstance().verifyNickname(nickname)) {
+            out.println("Empty or already existed nicknames are not acceptable");
             nickname = in.readLine();
         }
         playerState.setNickname(nickname);
