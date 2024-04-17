@@ -2,6 +2,41 @@
 
 ---
 
+## How to run
+
+### Prerequisite
+
+* Maven
+* JDK 8
+
+### Default settings
+
+* createServer=true - enables server on start
+* createPlayers=2 - creates players on start
+* messageLimit=10 - limit for messages from 1 player to another
+
+To change them edit ./src/main/resources/config.properties
+
+**IMPORTANT:** If you changed settings you need to rebuild jar for new settings to work
+
+### run command
+
+Will check if jar already build just runs the server
+
+```bash
+./startServer.sh
+```
+
+### Rebuild and run command
+
+Will rebuild before run
+
+```bash
+./rebuild.sh
+```
+
+---
+
 ## Implementation comments
 
 Current implementation will not close second application but will close server and application which run server and disconnect all users from second application
