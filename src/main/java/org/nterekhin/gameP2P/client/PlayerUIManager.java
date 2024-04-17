@@ -1,6 +1,7 @@
 package org.nterekhin.gameP2P.client;
 
 import org.nterekhin.gameP2P.ui.PlayerUI;
+import org.nterekhin.gameP2P.util.IOFunction;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -15,6 +16,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Helper class that manages opened Player's UI
+ * Singleton
+ */
 public final class PlayerUIManager {
 
     private static final PlayerUIManager instance = new PlayerUIManager();
@@ -29,23 +34,10 @@ public final class PlayerUIManager {
         clientPool = Executors.newCachedThreadPool();
         Socket socket = new Socket("127.0.0.1", port);
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
         PlayerUI playerUI = new PlayerUI(out);
 
-        // Setting position of the window close to previously opened window
-        if (!playerUIs.isEmpty()) {
-            playerUI.setLocation(400 * playerUIs.size(), 0);
-        }
-
-        // Setting closing operation for close socket and streams on window close
-        playerUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        playerUI.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                PlayerManager.getInstance().disconnectByPort(socket.getLocalPort());
-                playerUIs.remove(playerUI);
-            }
-        });
+        calculateWindowLocation(playerUI);
+        setUpClosingProcedure(playerUI, socket.getLocalPort());
         playerUI.setVisible(true);
 
         Thread listenerThread = buildClientThread(socket, playerUI);
@@ -53,29 +45,46 @@ public final class PlayerUIManager {
         playerUIs.add(playerUI);
     }
 
+    // Build client threads that will read messages form the socket and input them into chatArea
     private Thread buildClientThread(Socket socket, PlayerUI playerUI) {
-        return new Thread(() -> {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String message;
-                while (!socket.isClosed() && (message = in.readLine()) != null) {
-                    playerUI.appendMessage(message);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        return new Thread(() -> IOFunction.executeWithLogOnIOException(() -> {
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String message;
+            while (!socket.isClosed() && (message = in.readLine()) != null) {
+                playerUI.appendMessage(message);
+            }
+        }));
+    }
+
+    // Setting position of the window close to previously opened window
+    private void calculateWindowLocation(PlayerUI playerUI) {
+        if (!playerUIs.isEmpty()) {
+            playerUI.setLocation(400 * playerUIs.size(), 0);
+        }
+    }
+
+    // Setting closing operation for close socket and streams on window close
+    private void setUpClosingProcedure(PlayerUI playerUI, int localPort) {
+        playerUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        playerUI.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                PlayerManager.getInstance().disconnectByPort(localPort);
+                playerUIs.remove(playerUI);
             }
         });
     }
 
-    public void close() {
-        clientPool.shutdown();
-        clientPool = null;
+    public void clear() {
         playerUIs.forEach(JFrame::dispose);
         playerUIs.clear();
     }
 
-    public void closeByNickname(String nickname) {
-
+    // Gracefully close all opened UI windows and close execution pool
+    public void shutdown() {
+        clear();
+        clientPool.shutdown();
+        clientPool = null;
     }
 
     public static PlayerUIManager getInstance() {

@@ -2,6 +2,9 @@ package org.nterekhin.gameP2P.eventBus.event;
 
 import org.nterekhin.gameP2P.eventBus.EventType;
 
+/**
+ * Base for events
+ */
 public abstract class Event {
     public EventType eventType;
 

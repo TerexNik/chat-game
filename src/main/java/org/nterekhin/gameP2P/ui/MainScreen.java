@@ -5,6 +5,14 @@ import org.nterekhin.gameP2P.server.ServerManager;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * This is mainScreen class.
+ * It consists of server side buttons and client side buttons
+ * You can connect to other instances if you know their port
+ * <p>
+ * All important functions you can find in UIActions.class
+ * Some of Button logic is too simple to move them there so it remains here
+ */
 public class MainScreen extends JFrame {
     public MainScreen() {
         setTitle("360T Assignment");
@@ -52,7 +60,7 @@ public class MainScreen extends JFrame {
 
 
         JButton stopServer = new JButton("Stop Server");
-        stopServer.addActionListener(e -> ServerManager.getInstance().shutdownServer());
+        stopServer.addActionListener(e -> UIActions.stopServer());
         gbc.gridx = 3;
         centerPanel.add(stopServer, gbc);
     }
@@ -83,9 +91,9 @@ public class MainScreen extends JFrame {
     private int getPort(String port) {
         int result = Integer.parseInt(port);
         if (result < 1024 || result > 65535) {
-            return result;
-        } else {
             return 4440;
+        } else {
+            return result;
         }
 
     }

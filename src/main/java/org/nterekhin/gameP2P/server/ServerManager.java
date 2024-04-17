@@ -5,13 +5,18 @@ import org.nterekhin.gameP2P.client.PlayerUIManager;
 import org.nterekhin.gameP2P.eventBus.EventBus;
 
 import java.io.IOException;
+import java.net.BindException;
 
+/**
+ * Helper class that helps with server state changes
+ * Singleton
+ */
 public final class ServerManager {
     private static final ServerManager instance = new ServerManager();
     private Thread serverThread;
     private ChatServer chatServer;
 
-    public void startServer(int port) {
+    public void startServer(int port) throws BindException {
         if (chatServer != null && isServerRunning()) {
             return;
         }
@@ -21,12 +26,15 @@ public final class ServerManager {
             serverThread.start();
             EventBus.getInstance().setUpEventBusForServer();
             System.out.println("Chat server running on port " + port);
+        } catch (BindException e) {
+            throw e;
         } catch (IOException e) {
             e.printStackTrace();
             shutdownServer();
         }
     }
 
+    // Shuts server down, but keeps Application alive
     public void shutdownServer() {
         if (chatServer != null) {
             serverThread.interrupt();
@@ -36,13 +44,14 @@ public final class ServerManager {
         System.out.println("Chat server shut down");
     }
 
+    // Full shutdown with Application exit
     public void shutdownApplication() {
         if (chatServer != null) {
             serverThread.interrupt();
             chatServer.shutdown();
         }
-        PlayerUIManager.getInstance().close();
-        PlayerManager.getInstance().close();
+        PlayerUIManager.getInstance().shutdown();
+        PlayerManager.getInstance().shutdown();
         chatServer = null;
         EventBus.getInstance().clearUpEventBusFromServerListeners();
         System.out.println("Chat server shut down");

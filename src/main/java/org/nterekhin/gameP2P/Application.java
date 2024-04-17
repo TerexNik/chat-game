@@ -7,6 +7,7 @@ import org.nterekhin.gameP2P.ui.MainScreen;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.BindException;
 
 public class Application {
 
@@ -24,17 +25,23 @@ public class Application {
      * @param app    screen on which alert will be shown if something went wrong
      */
     private static void handleConfiguration(ServerConfigProperties config, MainScreen app) {
-        if (config.getCreateServer() && !ServerManager.getInstance().isServerRunning()) {
-            ServerManager.getInstance().startServer(4440);
-        }
-        int createPlayers = config.getCreatePlayers();
-        if (createPlayers > 0 && createPlayers < 10) {
-            for (int i = 0; i < createPlayers; i++) {
+        if (config.getCreateServer()) {
+            if (!ServerManager.getInstance().isServerRunning()) {
                 try {
-                    PlayerUIManager.getInstance().startClient(4440);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(app,
-                            "Something went wrong, check that server is running on port: " + 4440);
+                    ServerManager.getInstance().startServer(4440);
+                } catch (BindException e) {
+                    JOptionPane.showMessageDialog(app, "Server is already started");
+                }
+            }
+            int createPlayers = config.getCreatePlayers();
+            if (createPlayers > 0 && createPlayers < 10) {
+                for (int i = 0; i < createPlayers; i++) {
+                    try {
+                        PlayerUIManager.getInstance().startClient(4440);
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(app,
+                                "Something went wrong, check that server is running on port: " + 4440);
+                    }
                 }
             }
         }

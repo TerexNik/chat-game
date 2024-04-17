@@ -1,16 +1,17 @@
 package org.nterekhin.gameP2P.client;
 
-import org.nterekhin.gameP2P.eventBus.EventBus;
-import org.nterekhin.gameP2P.eventBus.event.MessagesLimitEvent;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Class stores player state and emit MessageLimit event
+ * when messages sent by Player exceed 10
+ */
 public class PlayerState {
     private String nickname;
     private final AtomicInteger messageCounter;
 
     public PlayerState() {
-        messageCounter = new AtomicInteger(0);
+        messageCounter = new AtomicInteger(1);
     }
 
     public String getNickname() {
@@ -25,9 +26,7 @@ public class PlayerState {
         return messageCounter.get();
     }
 
-    public void incrementMessageCounter() {
-        if (messageCounter.incrementAndGet() >= 5) {
-            EventBus.getInstance().postEvent(new MessagesLimitEvent());
-        }
+    public int incrementMessageCounter() {
+        return messageCounter.incrementAndGet();
     }
 }

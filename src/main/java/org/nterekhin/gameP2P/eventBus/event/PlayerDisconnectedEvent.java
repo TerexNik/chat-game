@@ -2,6 +2,9 @@ package org.nterekhin.gameP2P.eventBus.event;
 
 import org.nterekhin.gameP2P.eventBus.EventType;
 
+/**
+ * Event will happen when user disconnected from server
+ */
 public class PlayerDisconnectedEvent extends Event {
     private final String nickname;
     private final String remoteAddress;

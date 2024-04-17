@@ -5,13 +5,14 @@ import org.nterekhin.gameP2P.server.ServerManager;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.BindException;
 
+/**
+ * Class for convenience for functions bigger than 1 line from MainScreen actionListeners
+ */
 public class UIActions {
     public static void createNewClient(MainScreen mainScreen, int port) {
         try {
-            if (!ServerManager.getInstance().isServerRunning()) {
-                JOptionPane.showMessageDialog(mainScreen, "Server is not running");
-            }
             PlayerUIManager.getInstance().startClient(port);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(mainScreen,
@@ -20,11 +21,22 @@ public class UIActions {
     }
 
     public static void createNewServer(MainScreen mainScreen, int port) {
-        if (ServerManager.getInstance().isServerRunning()) {
-            JOptionPane.showMessageDialog(mainScreen, "Server is already started");
-            return;
+        try {
+            if (!ServerManager.getInstance().isServerRunning()) {
+                ServerManager.getInstance().startServer(port);
+                JOptionPane.showMessageDialog(mainScreen, "Server started on port " + port);
+            } else {
+                JOptionPane.showMessageDialog(mainScreen, "Server is already started");
+            }
+        } catch (BindException e) {
+            JOptionPane.showMessageDialog(mainScreen,
+                    "Server is already started or port is occupied try to create client"
+            );
         }
-        ServerManager.getInstance().startServer(port);
-        JOptionPane.showMessageDialog(mainScreen, "Server started on port " + port);
+    }
+
+    public static void stopServer() {
+        PlayerUIManager.getInstance().clear();
+        ServerManager.getInstance().shutdownServer();
     }
 }

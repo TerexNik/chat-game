@@ -1,12 +1,18 @@
 package org.nterekhin.gameP2P.client;
 
-import java.io.IOException;
+import org.nterekhin.gameP2P.util.IOFunction;
+
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Helper class that can create PlayerHandlers and communicate with them
+ * Singleton
+ */
 public final class PlayerManager {
 
     private static final PlayerManager instance = new PlayerManager();
@@ -16,24 +22,28 @@ public final class PlayerManager {
     private final ExecutorService pool;
 
     private PlayerManager() {
-        this.playerHandlers = new ArrayList<>();
+        this.playerHandlers = Collections.synchronizedList(new ArrayList<>());
         this.pool = Executors.newCachedThreadPool();
     }
 
     public void createPlayerHandler(Socket socket) {
-        try {
+        IOFunction.executeWithLogOnIOException(() -> {
             PlayerHandler clientHandler = new PlayerHandler(socket);
             playerHandlers.add(clientHandler);
             pool.execute(clientHandler);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
+    // Used when we need to tell all players something form Server
     public void broadcastServerMessage(String message) {
         playerHandlers.forEach(player -> player.sendMessage("Server: " + message));
     }
 
+    /**
+     * Used for chat send message
+     *
+     * @param nickname nickname of the player that sent message
+     */
     public void broadcast(String nickname, String message) {
         for (PlayerHandler playerHandler : playerHandlers) {
             PlayerState state = playerHandler.getPlayerState();
@@ -48,6 +58,7 @@ public final class PlayerManager {
         }
     }
 
+    // Used by UI to close corresponding connection on window::dispose
     public void disconnectByPort(int port) {
         playerHandlers.stream().filter(handler -> port == handler.getSocket().getPort())
                 .findFirst().ifPresent(handler -> {
@@ -56,6 +67,7 @@ public final class PlayerManager {
                     } else {
                         handler.close();
                     }
+                    playerHandlers.remove(handler);
                 });
     }
 
@@ -68,9 +80,21 @@ public final class PlayerManager {
         });
     }
 
-    public void close() {
+    public boolean isEnoughPlayersOnline() {
+        return playerHandlers.size() > 1;
+    }
+
+    public void clear() {
+        synchronized (playerHandlers) {
+            playerHandlers.forEach(PlayerHandler::close);
+            playerHandlers.clear();
+        }
+    }
+
+    // Gracefully close all opened handlers and stop executionPool
+    public void shutdown() {
+        clear();
         pool.shutdown();
-        playerHandlers.forEach(PlayerHandler::close);
     }
 
     public static PlayerManager getInstance() {

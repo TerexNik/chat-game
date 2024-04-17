@@ -1,17 +1,17 @@
 package org.nterekhin.gameP2P.server;
 
 import org.nterekhin.gameP2P.client.PlayerManager;
+import org.nterekhin.gameP2P.util.IOFunction;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-// Server class
 public class ChatServer implements Runnable {
 
+    // Flag for execution
     private volatile boolean running = true;
     private final ServerSocket serverSocket;
-    private final PlayerManager playerManager = PlayerManager.getInstance();
 
     public ChatServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -19,25 +19,23 @@ public class ChatServer implements Runnable {
 
     @Override
     public void run() {
-        while (running) {
-            try {
+        try {
+            while (running) {
                 Socket socket = serverSocket.accept();
-                playerManager.createPlayerHandler(socket);
-            } catch (IOException e) {
-                shutdown();
+                PlayerManager.getInstance().createPlayerHandler(socket);
             }
+        } catch (IOException e) {
+            shutdown();
         }
     }
 
     public void shutdown() {
-        running = false;
-        try {
+        IOFunction.executeWithLogOnIOException(() -> {
+            running = false;
             if (!serverSocket.isClosed()) {
                 serverSocket.close();
             }
-            playerManager.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            PlayerManager.getInstance().clear();
+        });
     }
 }

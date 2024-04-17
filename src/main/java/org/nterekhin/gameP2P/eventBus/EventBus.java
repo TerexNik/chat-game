@@ -9,6 +9,12 @@ import org.nterekhin.gameP2P.eventBus.listener.PlayerDisconnectedListener;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Event bus for project
+ * Helps with regular actions such as connection/disconnection
+ * <p>
+ * Works on Publisher/Subscriber pattern
+ */
 public final class EventBus {
     private final Map<EventType, EventListener<? extends Event>> listenersMap = new HashMap<>();
     private static final EventBus eventBus = new EventBus();
@@ -20,11 +26,11 @@ public final class EventBus {
         return eventBus;
     }
 
-    public void registerListener(EventType eventType, EventListener<? extends Event> listener) {
+    private void registerListener(EventType eventType, EventListener<? extends Event> listener) {
         listenersMap.computeIfAbsent(eventType, k -> listener);
     }
 
-    public void unregisterListener(EventType eventType) {
+    private void unregisterListener(EventType eventType) {
         listenersMap.remove(eventType);
     }
 

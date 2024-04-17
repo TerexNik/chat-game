@@ -1,11 +1,14 @@
 package org.nterekhin.gameP2P.eventBus.listener;
 
 import org.nterekhin.gameP2P.client.PlayerManager;
-import org.nterekhin.gameP2P.client.PlayerUIManager;
 import org.nterekhin.gameP2P.eventBus.event.Event;
 import org.nterekhin.gameP2P.eventBus.event.MessagesLimitEvent;
 import org.nterekhin.gameP2P.server.ServerManager;
 
+/**
+ * Listener for MessageLimit event
+ * Will shut down server gracefully when event happens
+ */
 public class MessageLimitListener implements EventListener<MessagesLimitEvent> {
 
     public MessageLimitListener() {

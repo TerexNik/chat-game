@@ -5,7 +5,10 @@ import java.awt.*;
 import java.io.PrintWriter;
 
 
-// UI class
+/**
+ * Player UI class
+ * Contains from chat area and input area
+ */
 public class PlayerUI extends JFrame {
     private final JTextArea chatArea;
     private final JTextField inputField;
@@ -24,6 +27,9 @@ public class PlayerUI extends JFrame {
         inputField = new JTextField();
         inputField.addActionListener(e -> {
             String message = inputField.getText();
+            if (message.isEmpty()) {
+                JOptionPane.showMessageDialog(PlayerUI.this, "Empty messages is not allowed");
+            }
             out.println(message);
             inputField.setText("");
         });

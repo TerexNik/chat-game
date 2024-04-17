@@ -2,6 +2,9 @@ package org.nterekhin.gameP2P.eventBus.event;
 
 import org.nterekhin.gameP2P.eventBus.EventType;
 
+/**
+ * Event will happen when user connected to Server and chosen nickname
+ */
 public class PlayerConnectedEvent extends Event {
 
     private final String nickname;
