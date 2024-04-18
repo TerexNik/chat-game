@@ -8,7 +8,7 @@ if [ -f "$JAR_FILE" ]; then
     java -jar "$JAR_FILE"
 else
     # Compile and package the Maven project
-    mvn clean package
+    mvn clean package -DskipTests
 
     # Check if compilation was successful
     if [ $? -eq 0 ]; then

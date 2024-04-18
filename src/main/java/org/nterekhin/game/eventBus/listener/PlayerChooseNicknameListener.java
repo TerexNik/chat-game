@@ -12,10 +12,16 @@ import org.nterekhin.game.eventBus.event.PlayerChooseNicknameEvent;
  * but this will be easier to add functional to when needed
  */
 public class PlayerChooseNicknameListener implements EventListener<PlayerChooseNicknameEvent> {
+    private final PlayerManager playerManager;
+
+    public PlayerChooseNicknameListener() {
+        this.playerManager = PlayerManager.getInstance();
+    }
+
     @Override
     public void onEvent(Event event) {
         PlayerChooseNicknameEvent connectedEvent = (PlayerChooseNicknameEvent) event;
-        PlayerManager.getInstance().broadcastServerMessage(
+        playerManager.broadcastServerMessage(
                 String.format("\"%s\" connected to chat", connectedEvent.getNickname())
         );
         System.out.printf("Client with nickname: %s is connected to %s%n",

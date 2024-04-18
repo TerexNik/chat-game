@@ -59,15 +59,14 @@ public class PlayerHandlerTest extends IntegrationTest {
         EventBus.getInstance().unregisterListener(EventType.MESSAGES_LIMIT_EXCEEDED);
         EventBus.getInstance().registerListener(EventType.MESSAGES_LIMIT_EXCEEDED, listener);
         Socket testSocket = new Socket("localhost", IntegrationTest.port);
-        BufferedReader testReader = new BufferedReader(new StringReader("Test message!"));
         PlayerHandler testHandler = new PlayerHandler(
                 testSocket,
-                testReader,
+                mockReader,
                 mockWriter,
                 new PlayerState("HanSolo", new AtomicInteger(5))
         );
         PlayerManager.getInstance().createPlayerHandler(testHandler);
-        wait(200);
+        PlayerManager.getInstance().broadcast(testHandler.getPlayerState(), "Test message!");
         verify(listener).onEvent(any());
 
         EventBus.getInstance().clearUpEventBusFromServerListeners();
@@ -87,7 +86,7 @@ public class PlayerHandlerTest extends IntegrationTest {
         );
         PlayerManager.getInstance().createPlayerHandler(testHandler);
         int messageCounter = testHandler.getPlayerState().getMessageCounter();
-        wait(200);
+        PlayerManager.getInstance().broadcast(testHandler.getPlayerState(), "Test message!");
         Assert.assertEquals(messageCounter + 1, testHandler.getPlayerState().getMessageCounter());
     }
 

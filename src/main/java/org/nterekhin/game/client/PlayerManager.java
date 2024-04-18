@@ -1,5 +1,8 @@
 package org.nterekhin.game.client;
 
+import org.nterekhin.game.config.ServerConfigProperties;
+import org.nterekhin.game.eventBus.EventBus;
+import org.nterekhin.game.eventBus.event.MessagesLimitEvent;
 import org.nterekhin.game.util.IOFunction;
 
 import java.util.ArrayList;
@@ -10,12 +13,12 @@ import java.util.concurrent.Executors;
 
 /**
  * Helper class that can create PlayerHandlers and communicate with them
- * Singleton
+ * Singleton not final for mocks in tests
  */
-public final class PlayerManager {
+public class PlayerManager {
 
     private static final PlayerManager instance = new PlayerManager();
-    private static final String MESSAGE_FORMAT = "message%s, nickname: %s, Message counter: %d";
+    private static final String MESSAGE_FORMAT = "%s%s, Message counter: %d";
 
     private final List<PlayerHandler> playerHandlers;
     private final ExecutorService pool;
@@ -40,25 +43,31 @@ public final class PlayerManager {
     /**
      * Used for chat send message
      *
-     * @param nickname nickname of the player that sent message
+     * @param state state of player that send message
      */
-    public void broadcast(String nickname, String message) {
+    public void broadcast(PlayerState state, String message) {
+        String nickname = state.getNickname();
         synchronized (playerHandlers) {
+            PlayerHandler sender = playerHandlers.stream().filter(handler -> nickname != null && nickname.equals(handler.getPlayerState().getNickname())).findFirst().get();
             if (message != null && !message.isEmpty()) {
-                playerHandlers.forEach(playerHandler -> {
-                    PlayerState state = playerHandler.getPlayerState();
-                    if (nickname != null && nickname.equals(state.getNickname())) {
-                        if (isEnoughPlayersOnline()) {
-                            playerHandler.sendMessage(String.format(MESSAGE_FORMAT,
-                                    message,
-                                    nickname,
-                                    state.getMessageCounter()));
-                        }
-                    } else {
-                        playerHandler.sendMessage(nickname + message);
-                    }
+                if (!isEnoughPlayersOnline()) {
+                    sender.sendMessage("Please wait until at least 2 players will be online");
+                }
+                playerHandlers.stream().filter(handler -> !handler.equals(sender)).forEach(handler -> {
+                    sender.sendMessage(String.format(MESSAGE_FORMAT,
+                            handler.getPlayerState().getNickname(),
+                            message,
+                            state.getMessageCounter()));
+                    checkStopCondition(state.incrementMessageCounter());
+                    handler.sendMessage(nickname + message);
                 });
             }
+        }
+    }
+
+    private void checkStopCondition(int messageCounter) {
+        if (messageCounter >= ServerConfigProperties.getInstance().getMessageLimit() + 1) {
+            EventBus.getInstance().postEvent(new MessagesLimitEvent());
         }
     }
 

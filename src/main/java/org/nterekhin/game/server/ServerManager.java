@@ -9,9 +9,9 @@ import java.net.BindException;
 
 /**
  * Helper class that helps with server state changes
- * Singleton
+ * Singleton not final for mocks in tests
  */
-public final class ServerManager {
+public class ServerManager {
     private static final ServerManager instance = new ServerManager();
     private Thread serverThread;
     private ChatServer chatServer;
@@ -59,7 +59,7 @@ public final class ServerManager {
     }
 
     public boolean isServerRunning() {
-        return serverThread != null && serverThread.isAlive();
+        return chatServer.isRunning();
     }
 
     public static ServerManager getInstance() {

@@ -17,7 +17,13 @@ import java.util.concurrent.Executors;
  * Will create PlayerHandler for user and ask him for nickname
  */
 public class PlayerConnectedListener implements EventListener<PlayerConnectedEvent> {
-    private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final ExecutorService pool;
+    private final PlayerManager playerManager;
+
+    public PlayerConnectedListener() {
+        playerManager = PlayerManager.getInstance();
+        pool = Executors.newCachedThreadPool();
+    }
 
     @Override
     public void onEvent(Event event) {
@@ -28,12 +34,16 @@ public class PlayerConnectedListener implements EventListener<PlayerConnectedEve
             pool.submit(() -> {
                 try {
                     handler.init();
-                    PlayerManager.getInstance().createPlayerHandler(handler);
+                    playerManager.createPlayerHandler(handler);
                 } catch (IOException e) {
                     e.printStackTrace();
                     handler.close();
                 }
             });
         });
+    }
+
+    public void shutdown() {
+        pool.shutdown();
     }
 }

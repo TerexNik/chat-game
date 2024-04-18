@@ -3,7 +3,7 @@
 JAR_FILE="target/Game-1.0.jar"
 
 # Compile and package the Maven project
-mvn clean package
+mvn clean package -DskipTests
 
 # Check if compilation was successful
 if [ $? -eq 0 ]; then

@@ -1,8 +1,6 @@
 package org.nterekhin.game.client;
 
-import org.nterekhin.game.config.ServerConfigProperties;
 import org.nterekhin.game.eventBus.EventBus;
-import org.nterekhin.game.eventBus.event.MessagesLimitEvent;
 import org.nterekhin.game.eventBus.event.PlayerChooseNicknameEvent;
 import org.nterekhin.game.eventBus.event.PlayerDisconnectedEvent;
 import org.nterekhin.game.util.IOFunction;
@@ -54,26 +52,15 @@ public class PlayerHandler implements Runnable {
                 if (message.equals("quit")) {
                     disconnect();
                 } else {
-                    PlayerManager.getInstance().broadcast(playerState.getNickname(), ": " + message);
-                    if (PlayerManager.getInstance().isEnoughPlayersOnline()) {
-                        checkStopCondition(playerState.incrementMessageCounter());
-                    } else {
-                        out.println("Please wait until at least 2 players will be online");
-                    }
+                    PlayerManager.getInstance().broadcast(playerState, ": " + message);
                 }
             }
         } catch (SocketException e) {
-            // this catch helps keep logs clean from players that not chosen their nicknames yet
+            // For cleaner logs on server shutdown
             close();
         } catch (IOException e) {
             e.printStackTrace();
             close();
-        }
-    }
-
-    private void checkStopCondition(int messageCounter) {
-        if (messageCounter >= ServerConfigProperties.getInstance().getMessageLimit() + 1) {
-            EventBus.getInstance().postEvent(new MessagesLimitEvent());
         }
     }
 

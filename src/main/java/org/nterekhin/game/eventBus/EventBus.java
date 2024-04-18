@@ -32,6 +32,11 @@ public final class EventBus {
     }
 
     public void unregisterListener(EventType eventType) {
+        if (EventType.PLAYER_CONNECTED.equals(eventType)) {
+            PlayerConnectedListener listener =
+                    (PlayerConnectedListener) listenersMap.get(EventType.PLAYER_CONNECTED);
+            listener.shutdown();
+        }
         listenersMap.remove(eventType);
     }
 
@@ -62,8 +67,9 @@ public final class EventBus {
     }
 
     public void clearUpEventBusFromServerListeners() {
-        unregisterListener(EventType.MESSAGES_LIMIT_EXCEEDED);
-        unregisterListener(EventType.PLAYER_CONNECTED);
-        unregisterListener(EventType.PLAYER_DISCONNECTED);
+        if (listenersMap.containsKey(EventType.PLAYER_CONNECTED)) {
+            unregisterListener(EventType.PLAYER_CONNECTED);
+        }
+        listenersMap.clear();
     }
 }

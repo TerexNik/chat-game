@@ -1,8 +1,6 @@
 package org.nterekhin.game.server;
 
-import org.nterekhin.game.client.PlayerHandler;
 import org.nterekhin.game.client.PlayerManager;
-import org.nterekhin.game.client.PlayerState;
 import org.nterekhin.game.eventBus.EventBus;
 import org.nterekhin.game.eventBus.event.PlayerConnectedEvent;
 import org.nterekhin.game.util.IOFunction;
@@ -41,5 +39,9 @@ public class ChatServer implements Runnable {
             }
             PlayerManager.getInstance().clear();
         });
+    }
+
+    public boolean isRunning() {
+        return running && !serverSocket.isClosed();
     }
 }

@@ -10,15 +10,19 @@ import org.nterekhin.game.server.ServerManager;
  * Will shut down server gracefully when event happens
  */
 public class MessageLimitListener implements EventListener<MessagesLimitEvent> {
+    private final PlayerManager playerManager;
+    private final ServerManager serverManager;
 
     public MessageLimitListener() {
+        playerManager = PlayerManager.getInstance();
+        serverManager = ServerManager.getInstance();
     }
 
     @Override
     public void onEvent(Event event) {
-        PlayerManager.getInstance().broadcastServerMessage(
+        playerManager.broadcastServerMessage(
                 "Message limit reached, server is shutting down"
         );
-        ServerManager.getInstance().shutdownApplication();
+        serverManager.shutdownApplication();
     }
 }

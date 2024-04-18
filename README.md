@@ -76,10 +76,10 @@ Having a Player class - an instance of this class with that can communicate with
 7. opposite to 5: have every player in a separate JAVA process (different PID).
 
 - [x] Please use pure Java as much as possible (no additional frameworks like spring, etc.)
-- [ ] Please deliver one single maven project with the source code only (no jars).
-- [ ] Please send the maven project as archive
+- [x] Please deliver one single maven project with the source code only (no jars).
+- [x] Please send the maven project as archive
   attached to e-mail (eventual links for download will be ignored due to security policy).
-- [ ] Please provide a shell script to start the program.
+- [x] Please provide a shell script to start the program.
 
 Everything what is not clearly specified is to be decided by developer.
 Everything what is specified is a hard requirement.
