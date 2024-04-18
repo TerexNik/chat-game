@@ -59,7 +59,7 @@ public class ServerManager {
     }
 
     public boolean isServerRunning() {
-        return chatServer.isRunning();
+        return chatServer != null && chatServer.isRunning();
     }
 
     public static ServerManager getInstance() {

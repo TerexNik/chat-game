@@ -11,9 +11,11 @@
 
 ### Default settings
 
-* createServer=true - enables server on start
-* createPlayers=2 - creates players on start
-* messageLimit=10 - limit for messages from 1 player to another
+```properties
+createServer=true    # enables server on start
+createPlayers=2      # creates players on start
+messageLimit=10      # limit for messages from 1 player to another
+```
 
 To change them edit ./src/main/resources/config.properties
 
@@ -21,7 +23,8 @@ To change them edit ./src/main/resources/config.properties
 
 ### run command
 
-Will check if jar already build just runs the server
+Will check `target/*.jar` and if already exist, just runs the server
+If not, then will build and run application
 
 ```bash
 ./startServer.sh
@@ -29,7 +32,7 @@ Will check if jar already build just runs the server
 
 ### Rebuild and run command
 
-Will rebuild before run
+Will always build before run
 
 ```bash
 ./rebuild.sh
@@ -39,7 +42,9 @@ Will rebuild before run
 
 ## Implementation comments
 
-Current implementation will not close second application but will close server and application which run server and disconnect all users from second application
+### Current implementation will not close second application but will close server and application in which server runs, also disconnect all users from second application
+
+### Application tested on MacOs so may have problems with sockets on Windows
 
 ### Main screen
 
