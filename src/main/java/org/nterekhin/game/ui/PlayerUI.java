@@ -15,7 +15,6 @@ public class PlayerUI extends JFrame {
 
     public PlayerUI(PrintWriter out) {
         setTitle("Chat Client");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(400, 300);
         setLayout(new BorderLayout());
 

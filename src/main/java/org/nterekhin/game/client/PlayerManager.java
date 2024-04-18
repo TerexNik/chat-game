@@ -2,7 +2,6 @@ package org.nterekhin.game.client;
 
 import org.nterekhin.game.util.IOFunction;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,11 +25,10 @@ public final class PlayerManager {
         this.pool = Executors.newCachedThreadPool();
     }
 
-    public void createPlayerHandler(Socket socket) {
+    public void createPlayerHandler(PlayerHandler handler) {
         IOFunction.executeWithLogOnIOException(() -> {
-            PlayerHandler clientHandler = new PlayerHandler(socket, new PlayerState());
-            playerHandlers.add(clientHandler);
-            pool.execute(clientHandler);
+            playerHandlers.add(handler);
+            pool.execute(handler);
         });
     }
 
@@ -45,15 +43,21 @@ public final class PlayerManager {
      * @param nickname nickname of the player that sent message
      */
     public void broadcast(String nickname, String message) {
-        for (PlayerHandler playerHandler : playerHandlers) {
-            PlayerState state = playerHandler.getPlayerState();
-            if (nickname != null && nickname.equals(state.getNickname())) {
-                playerHandler.sendMessage(String.format(MESSAGE_FORMAT,
-                        message,
-                        nickname,
-                        state.getMessageCounter()));
-            } else {
-                playerHandler.sendMessage(nickname + message);
+        synchronized (playerHandlers) {
+            if (message != null && !message.isEmpty()) {
+                playerHandlers.forEach(playerHandler -> {
+                    PlayerState state = playerHandler.getPlayerState();
+                    if (nickname != null && nickname.equals(state.getNickname())) {
+                        if (isEnoughPlayersOnline()) {
+                            playerHandler.sendMessage(String.format(MESSAGE_FORMAT,
+                                    message,
+                                    nickname,
+                                    state.getMessageCounter()));
+                        }
+                    } else {
+                        playerHandler.sendMessage(nickname + message);
+                    }
+                });
             }
         }
     }

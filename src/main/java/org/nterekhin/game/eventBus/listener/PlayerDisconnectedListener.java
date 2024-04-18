@@ -2,7 +2,7 @@ package org.nterekhin.game.eventBus.listener;
 
 import org.nterekhin.game.client.PlayerManager;
 import org.nterekhin.game.eventBus.event.Event;
-import org.nterekhin.game.eventBus.event.PlayerConnectedEvent;
+import org.nterekhin.game.eventBus.event.PlayerChooseNicknameEvent;
 import org.nterekhin.game.eventBus.event.PlayerDisconnectedEvent;
 
 /**
@@ -12,7 +12,7 @@ import org.nterekhin.game.eventBus.event.PlayerDisconnectedEvent;
  * May be good idea to make 1 event connect/disconnect
  * but this will be easier to add functional to when needed
  */
-public class PlayerDisconnectedListener implements EventListener<PlayerConnectedEvent> {
+public class PlayerDisconnectedListener implements EventListener<PlayerChooseNicknameEvent> {
 
     public PlayerDisconnectedListener() {
     }

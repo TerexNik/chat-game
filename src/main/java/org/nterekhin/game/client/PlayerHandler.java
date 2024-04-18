@@ -3,7 +3,7 @@ package org.nterekhin.game.client;
 import org.nterekhin.game.config.ServerConfigProperties;
 import org.nterekhin.game.eventBus.EventBus;
 import org.nterekhin.game.eventBus.event.MessagesLimitEvent;
-import org.nterekhin.game.eventBus.event.PlayerConnectedEvent;
+import org.nterekhin.game.eventBus.event.PlayerChooseNicknameEvent;
 import org.nterekhin.game.eventBus.event.PlayerDisconnectedEvent;
 import org.nterekhin.game.util.IOFunction;
 
@@ -33,10 +33,21 @@ public class PlayerHandler implements Runnable {
         out = new PrintWriter(socket.getOutputStream(), true);
     }
 
+    // For tests
+    protected PlayerHandler(Socket socket, BufferedReader in, PrintWriter out, PlayerState playerState) {
+        this.socket = socket;
+        this.in = in;
+        this.out = out;
+        this.playerState = playerState;
+    }
+
     @Override
     public void run() {
         try {
-            init();
+            EventBus.getInstance().postEvent(new PlayerChooseNicknameEvent(
+                    playerState.getNickname(),
+                    socket.getRemoteSocketAddress().toString())
+            );
             String message;
             while (running && !socket.isClosed() && (message = in.readLine()) != null) {
                 // If player want to quit before message limit is exceeded
@@ -69,7 +80,7 @@ public class PlayerHandler implements Runnable {
     /**
      * Here we will collect Player nickname
      */
-    private void init() throws IOException {
+    public void init() throws IOException {
         out.println("Please choose nickname");
         String nickname = in.readLine();
         while (!PlayerManager.getInstance().verifyNickname(nickname)) {
@@ -77,10 +88,6 @@ public class PlayerHandler implements Runnable {
             nickname = in.readLine();
         }
         playerState.setNickname(nickname);
-        EventBus.getInstance().postEvent(new PlayerConnectedEvent(
-                playerState.getNickname(),
-                socket.getRemoteSocketAddress().toString())
-        );
     }
 
     public void sendMessage(String message) {

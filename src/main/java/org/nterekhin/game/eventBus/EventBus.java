@@ -3,6 +3,7 @@ package org.nterekhin.game.eventBus;
 import org.nterekhin.game.eventBus.event.Event;
 import org.nterekhin.game.eventBus.listener.EventListener;
 import org.nterekhin.game.eventBus.listener.MessageLimitListener;
+import org.nterekhin.game.eventBus.listener.PlayerChooseNicknameListener;
 import org.nterekhin.game.eventBus.listener.PlayerConnectedListener;
 import org.nterekhin.game.eventBus.listener.PlayerDisconnectedListener;
 
@@ -26,11 +27,11 @@ public final class EventBus {
         return eventBus;
     }
 
-    private void registerListener(EventType eventType, EventListener<? extends Event> listener) {
+    public void registerListener(EventType eventType, EventListener<? extends Event> listener) {
         listenersMap.computeIfAbsent(eventType, k -> listener);
     }
 
-    private void unregisterListener(EventType eventType) {
+    public void unregisterListener(EventType eventType) {
         listenersMap.remove(eventType);
     }
 
@@ -43,12 +44,16 @@ public final class EventBus {
 
     public void setUpEventBusForServer() {
         eventBus.registerListener(
-                EventType.MESSAGES_LIMIT,
+                EventType.MESSAGES_LIMIT_EXCEEDED,
                 new MessageLimitListener()
         );
         eventBus.registerListener(
                 EventType.PLAYER_CONNECTED,
                 new PlayerConnectedListener()
+        );
+        eventBus.registerListener(
+                EventType.PLAYER_CHOOSE_NICKNAME,
+                new PlayerChooseNicknameListener()
         );
         eventBus.registerListener(
                 EventType.PLAYER_DISCONNECTED,
@@ -57,7 +62,7 @@ public final class EventBus {
     }
 
     public void clearUpEventBusFromServerListeners() {
-        unregisterListener(EventType.MESSAGES_LIMIT);
+        unregisterListener(EventType.MESSAGES_LIMIT_EXCEEDED);
         unregisterListener(EventType.PLAYER_CONNECTED);
         unregisterListener(EventType.PLAYER_DISCONNECTED);
     }

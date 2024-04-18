@@ -7,6 +7,6 @@ import org.nterekhin.game.eventBus.EventType;
  */
 public class MessagesLimitEvent extends Event {
     public MessagesLimitEvent() {
-        super(EventType.MESSAGES_LIMIT);
+        super(EventType.MESSAGES_LIMIT_EXCEEDED);
     }
 }

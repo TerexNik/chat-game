@@ -1,6 +1,10 @@
 package org.nterekhin.game.server;
 
+import org.nterekhin.game.client.PlayerHandler;
 import org.nterekhin.game.client.PlayerManager;
+import org.nterekhin.game.client.PlayerState;
+import org.nterekhin.game.eventBus.EventBus;
+import org.nterekhin.game.eventBus.event.PlayerConnectedEvent;
 import org.nterekhin.game.util.IOFunction;
 
 import java.io.IOException;
@@ -22,7 +26,7 @@ public class ChatServer implements Runnable {
         try {
             while (running) {
                 Socket socket = serverSocket.accept();
-                PlayerManager.getInstance().createPlayerHandler(socket);
+                EventBus.getInstance().postEvent(new PlayerConnectedEvent(socket));
             }
         } catch (IOException e) {
             shutdown();

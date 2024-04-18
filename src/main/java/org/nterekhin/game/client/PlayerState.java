@@ -14,6 +14,12 @@ public class PlayerState {
         messageCounter = new AtomicInteger(1);
     }
 
+    // For tests
+    protected PlayerState(String nickname, AtomicInteger messageCounter) {
+        this.nickname = nickname;
+        this.messageCounter = messageCounter;
+    }
+
     public String getNickname() {
         return nickname;
     }

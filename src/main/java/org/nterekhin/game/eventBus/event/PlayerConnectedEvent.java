@@ -2,25 +2,21 @@ package org.nterekhin.game.eventBus.event;
 
 import org.nterekhin.game.eventBus.EventType;
 
+import java.net.Socket;
+
 /**
  * Event will happen when user connected to Server and chosen nickname
  */
 public class PlayerConnectedEvent extends Event {
 
-    private final String nickname;
-    private final String remoteAddress;
+    private final Socket socket;
 
-    public PlayerConnectedEvent(String nickname, String remoteAddress) {
+    public PlayerConnectedEvent(Socket socket) {
         super(EventType.PLAYER_CONNECTED);
-        this.nickname = nickname;
-        this.remoteAddress = remoteAddress;
+        this.socket = socket;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getRemoteAddress() {
-        return remoteAddress;
+    public Socket getSocket() {
+        return socket;
     }
 }
