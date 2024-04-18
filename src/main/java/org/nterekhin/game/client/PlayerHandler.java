@@ -52,7 +52,7 @@ public class PlayerHandler implements Runnable {
                 if (message.equals("quit")) {
                     disconnect();
                 } else {
-                    PlayerManager.getInstance().broadcast(playerState, ": " + message);
+                    PlayerManager.getInstance().broadcast(playerState, message);
                 }
             }
         } catch (SocketException e) {

@@ -11,7 +11,7 @@ public class PlayerState {
     private final AtomicInteger messageCounter;
 
     public PlayerState() {
-        messageCounter = new AtomicInteger(1);
+        messageCounter = new AtomicInteger(0);
     }
 
     // For tests

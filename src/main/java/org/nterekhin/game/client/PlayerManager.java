@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class PlayerManager {
 
     private static final PlayerManager instance = new PlayerManager();
-    private static final String MESSAGE_FORMAT = "%s%s, Message counter: %d";
+    private static final String MESSAGE_FORMAT = "%s: %s, Message counter: %d";
 
     private final List<PlayerHandler> playerHandlers;
     private final ExecutorService pool;
@@ -48,25 +48,28 @@ public class PlayerManager {
     public void broadcast(PlayerState state, String message) {
         String nickname = state.getNickname();
         synchronized (playerHandlers) {
-            PlayerHandler sender = playerHandlers.stream().filter(handler -> nickname != null && nickname.equals(handler.getPlayerState().getNickname())).findFirst().get();
-            if (message != null && !message.isEmpty()) {
+            PlayerHandler sender = playerHandlers.stream().filter(handler ->
+                    nickname != null && nickname.equals(handler.getPlayerState().getNickname())
+            ).findFirst().orElse(null);
+            if (sender != null && message != null && !message.isEmpty()) {
                 if (!isEnoughPlayersOnline()) {
                     sender.sendMessage("Please wait until at least 2 players will be online");
-                }
-                playerHandlers.stream().filter(handler -> !handler.equals(sender)).forEach(handler -> {
-                    sender.sendMessage(String.format(MESSAGE_FORMAT,
-                            handler.getPlayerState().getNickname(),
-                            message,
-                            state.getMessageCounter()));
+                } else {
                     checkStopCondition(state.incrementMessageCounter());
-                    handler.sendMessage(nickname + message);
-                });
+                    playerHandlers.stream().filter(handler -> !sender.equals(handler)).forEach(handler -> {
+                        sender.sendMessage(String.format(MESSAGE_FORMAT,
+                                handler.getPlayerState().getNickname(),
+                                message,
+                                state.getMessageCounter()));
+                        handler.sendMessage(nickname + ": " + message);
+                    });
+                }
             }
         }
     }
 
     private void checkStopCondition(int messageCounter) {
-        if (messageCounter >= ServerConfigProperties.getInstance().getMessageLimit() + 1) {
+        if (messageCounter >= ServerConfigProperties.getInstance().getMessageLimit()) {
             EventBus.getInstance().postEvent(new MessagesLimitEvent());
         }
     }
