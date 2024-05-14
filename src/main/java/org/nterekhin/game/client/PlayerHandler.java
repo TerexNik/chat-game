@@ -1,6 +1,8 @@
 package org.nterekhin.game.client;
 
+import org.nterekhin.game.config.ServerConfigProperties;
 import org.nterekhin.game.eventBus.EventBus;
+import org.nterekhin.game.eventBus.event.MessagesLimitEvent;
 import org.nterekhin.game.eventBus.event.PlayerChooseNicknameEvent;
 import org.nterekhin.game.eventBus.event.PlayerDisconnectedEvent;
 import org.nterekhin.game.util.IOFunction;
@@ -16,6 +18,9 @@ import java.net.SocketException;
  * This class helps with logic needed for players communications
  */
 public class PlayerHandler implements Runnable {
+
+    private final static PlayerManager playerManager = PlayerManager.getInstance();
+    private static final String MESSAGE_FORMAT = "%s: %s, Messages left: %d";
 
     // Flag for execution
     private volatile boolean running = true;
@@ -52,7 +57,7 @@ public class PlayerHandler implements Runnable {
                 if (message.equals("quit")) {
                     disconnect();
                 } else {
-                    PlayerManager.getInstance().broadcast(playerState, message);
+                    playerManager.broadcast(playerState.getNickname(), message);
                 }
             }
         } catch (SocketException e) {
@@ -70,15 +75,34 @@ public class PlayerHandler implements Runnable {
     public void init() throws IOException {
         out.println("Please choose nickname");
         String nickname = in.readLine();
-        while (!PlayerManager.getInstance().verifyNickname(nickname)) {
+        while (!playerManager.verifyNickname(nickname)) {
             out.println("Empty or already existed nicknames are not acceptable");
             nickname = in.readLine();
         }
         playerState.setNickname(nickname);
     }
 
-    public void sendMessage(String message) {
+    // For own messages
+    public void acceptMessage(String message) {
+        out.println(String.format(MESSAGE_FORMAT,
+                playerState.getNickname(),
+                message,
+                ServerConfigProperties.getInstance().getMessageLimit() - playerState.incrementMessageCounter()));
+        checkStopCondition(playerState.getMessageCounter());
+    }
+
+    public void acceptServerMessage(String message) {
         out.println(message);
+    }
+
+    public void acceptOtherPlayerMessage(String nickname, String message) {
+        out.println(nickname + ": " + message);
+    }
+
+    private void checkStopCondition(int messageCounter) {
+        if (messageCounter >= ServerConfigProperties.getInstance().getMessageLimit()) {
+            EventBus.getInstance().postEvent(new MessagesLimitEvent());
+        }
     }
 
     /**

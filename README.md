@@ -1,27 +1,35 @@
-# 360T Assignment application
+# Chat game application
 
 ---
 
-## How to run
-
-### Prerequisite
+## Prerequisite
 
 * Maven
-* JDK 8
+* JDK 11
 
 ### Default settings
 
 ```properties
-createServer=true    # enables server on start
-createPlayers=2      # creates players on start
-messageLimit=10      # limit for messages from 1 player to another
+port=4440
+## Will start server on port 4440 on start up
+createServer=true
+## Will create N players (max 10) on start
+createPlayers=2
+## Message limit for application
+messageLimit=100
+## Will set nicknames to Player${Number}
+defaultNicknames=true
+## Will send Hello in second connected player
+sendHelloMessage=false
 ```
 
 To change them edit ./src/main/resources/config.properties
 
 **IMPORTANT:** If you changed settings you need to rebuild jar for new settings to work
 
-### run command
+---
+
+## How to run application
 
 Will check `target/*.jar` and if already exist, just runs the server
 If not, then will build and run application
@@ -40,11 +48,7 @@ Will always build before run
 
 ---
 
-## Implementation comments
-
-### Current implementation will not close second application but will close server and application in which server runs, also disconnect all users from second application
-
-### Application tested on MacOs so may have problems with sockets on Windows
+## Screen documentation
 
 ### Main screen
 
@@ -62,35 +66,6 @@ Consists of input field and chat area
 * Empty or Already existed nicknames are not allowed.
 * Empty messages are not allowed
 * Messages counting only when there are 2 or more clients on the server
+* To quit you can type `quit`
 
 ---
-
-### Task:
-
-Having a Player class - an instance of this class with that can communicate with other Player(s) (other instances of this class)
-
-### The use case for this task is as bellow:
-
-1. create 2 players
-2. one of the players should send a message to second player (let's call this player "initiator")
-3. when a player receives a message should send back a new message that contains the received message concatenated with
-   the message counter that this player sent.
-4. finalize the program (gracefully) after the initiator sent 10 messages and received back 10 messages (stop condition)
-5. both players should run in the same java process (strong requirement)
-6. document for every class the responsibilities it has.
-7. opposite to 5: have every player in a separate JAVA process (different PID).
-
-- [x] Please use pure Java as much as possible (no additional frameworks like spring, etc.)
-- [x] Please deliver one single maven project with the source code only (no jars).
-- [x] Please send the maven project as archive
-  attached to e-mail (eventual links for download will be ignored due to security policy).
-- [x] Please provide a shell script to start the program.
-
-Everything what is not clearly specified is to be decided by developer.
-Everything what is specified is a hard requirement.
-
-Please focus on design and not on technology, the technology should be the simplest possible that is achieving the
-target.
-
-The focus of the exercise is to deliver the cleanest and clearest design that you can achieve (and the system has to be
-functional).

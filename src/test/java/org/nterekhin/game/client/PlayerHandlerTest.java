@@ -66,7 +66,7 @@ public class PlayerHandlerTest extends IntegrationTest {
                 new PlayerState("HanSolo", new AtomicInteger(5))
         );
         PlayerManager.getInstance().createPlayerHandler(testHandler);
-        PlayerManager.getInstance().broadcast(testHandler.getPlayerState(), "Test message!");
+        PlayerManager.getInstance().broadcast(testHandler.getPlayerState().getNickname(), "Test message!");
         verify(listener).onEvent(any());
 
         EventBus.getInstance().clearUpEventBusFromServerListeners();
@@ -86,7 +86,7 @@ public class PlayerHandlerTest extends IntegrationTest {
         );
         PlayerManager.getInstance().createPlayerHandler(testHandler);
         int messageCounter = testHandler.getPlayerState().getMessageCounter();
-        PlayerManager.getInstance().broadcast(testHandler.getPlayerState(), "Test message!");
+        PlayerManager.getInstance().broadcast(testHandler.getPlayerState().getNickname(), "Test message!");
         Assert.assertEquals(messageCounter + 1, testHandler.getPlayerState().getMessageCounter());
     }
 
@@ -101,8 +101,8 @@ public class PlayerHandlerTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldSendMessage() throws Exception {
-        playerHandler.sendMessage("Hello World");
+    public void shouldAcceptMessage() throws Exception {
+        playerHandler.acceptMessage("Hello World");
         verify(mockWriter, atLeastOnce()).println("Hello World");
     }
 

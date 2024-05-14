@@ -14,7 +14,7 @@ public class Application {
     public static void main(String[] args) {
         MainScreen app = new MainScreen();
         app.setLocationRelativeTo(null);
-        handleConfiguration(ServerConfigProperties.getInstance(), app);
+        handleConfiguration(ServerConfigProperties.setUpPropertiesByArgs(args), app);
         SwingUtilities.invokeLater(() -> app.setVisible(true));
     }
 
